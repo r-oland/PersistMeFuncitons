@@ -3,7 +3,7 @@ var admin = require("firebase-admin");
 
 admin.initializeApp({
   credential: admin.credential.applicationDefault(),
-  databaseURL: "https://persistme-d937f.firebaseio.comm",
+  databaseURL: "https://persistme-d937f.firebaseio.com",
 });
 
 exports.deleteUser = functions.auth.user().onDelete(async (user) => {
@@ -18,7 +18,9 @@ exports.deleteUser = functions.auth.user().onDelete(async (user) => {
   });
 });
 
-exports.createUserDoc = functions.https.onCall(async (username, context) => {
+exports.createUserDoc = functions.https.onCall(async (data, context) => {
+  const { username, email } = data;
+
   try {
     const user = await admin
       .firestore()
@@ -29,8 +31,32 @@ exports.createUserDoc = functions.https.onCall(async (username, context) => {
     if (!user.exists) {
       admin.firestore().collection("users").doc(username).set({
         userId: context.auth.uid,
-        username: username,
+        email,
+        username,
         subscriptionDate: new Date(),
+      });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+exports.updateUserDoc = functions.https.onCall(async (data, context) => {
+  const { uid, username, email } = data;
+
+  console.log(data);
+
+  try {
+    const user = await admin
+      .firestore()
+      .collection("users")
+      .where("userId", "==", uid)
+      .get();
+
+    if (user.exists) {
+      admin.firestore().collection("users").doc(username).update({
+        username,
+        email,
       });
     }
   } catch (error) {
