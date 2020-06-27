@@ -5,6 +5,7 @@
     "lint": "eslint .",
     "serve": "firebase serve ",
     "emulator": "firebase emulators:start --import=../backup",
+    "backup": "firebase emulators:export ../backup",
     "shell": "firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
